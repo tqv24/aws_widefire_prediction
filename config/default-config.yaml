@@ -34,7 +34,7 @@ create_dataset:
     - frp
     - confidence
   region_filter:
-    enabled: true
+    enabled: false
     min_latitude: -44
     max_latitude: -10
     min_longitude: 112

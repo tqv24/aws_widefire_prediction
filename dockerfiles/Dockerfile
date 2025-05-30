@@ -1,79 +1,44 @@
-# FROM python:3.10-slim
-# # Set working directory
-# WORKDIR /app
-# # Set environment variables to improve Python behavior in containers
-# ENV PYTHONDONTWRITEBYTECODE=1 \
-#     PYTHONUNBUFFERED=1 \
-#     PYTHONPATH=/app
-# RUN apt-get update && apt-get install -y --no-install-recommends \
-#     gcc \
-#     && apt-get clean \
-#     && rm -rf /var/lib/apt/lists/*
-# COPY requirements.txt .
-# RUN pip install --no-cache-dir -r requirements.txt pytest
-# RUN mkdir -p /app/artifacts
-# COPY src/ /app/src/
-# COPY config/ /app/config/
-# COPY tests/ /app/tests/
-# COPY pipeline.py /app/
-# # Create entrypoint script
-# RUN echo '#!/bin/bash\nif [ "$1" = "pytest" ]; then\n    shift\n    exec pytest "$@"\nelse\n    exec python pipeline.py "$@"\nfi' > /app/entrypoint.sh && \
-#     chmod +x /app/entrypoint.sh
-# # Create volume for artifacts - allows persistence between runs
-# VOLUME ["/app/artifacts"]
-# # Make directories for data and output
-# RUN mkdir -p /app/data
-# # Add a healthcheck
-# HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-#   CMD python -c "import sys; sys.exit(0)"
-# ENTRYPOINT ["/app/entrypoint.sh"]
-# CMD ["--config", "config/default-config.yaml"]
+FROM python:3.11-slim
 
-# # Alternative command to run tests
-# # Usage: docker run cloud-classfier pytest
-# # Or: docker run hw2-pipeline pytest tests/test_specific_file.py
-
-
-FROM python:3.10-slim
-
-# Set working directory
 WORKDIR /app
 
-# Set environment variables to improve Python behavior in containers
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app
-
+# Install system dependencies for better compatibility
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
+    curl \
+    build-essential \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy requirements and install dependencies with proper error handling
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt pytest
+# Install streamlit and dependencies first to ensure they're properly resolved
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir streamlit==1.11.0 altair==4.2.0 vega_datasets && \
+    pip install --no-cache-dir -r requirements.txt || (echo "Requirements installation failed" && exit 1)
 
-# Create directory for artifacts
-RUN mkdir -p /app/artifacts
+# Show installed packages for debugging
+RUN pip list
 
-# Copy application files
-COPY src/ /app/src/
-COPY config/ /app/config/
-COPY tests/ /app/tests/
-COPY pipeline.py /app/
+# Create necessary directories to ensure proper structure
+RUN mkdir -p /app/models /app/data
 
-# Create entrypoint script
-RUN echo '#!/bin/bash\nif [ "$1" = "pytest" ]; then\n    shift\n    exec pytest "$@"\nelse\n    exec python pipeline.py "$@"\nfi' > /app/entrypoint.sh && \
-    chmod +x /app/entrypoint.sh
+# Copy the application code
+COPY src/ ./src/
+COPY config/ ./config/
 
-# Create volume for artifacts - allows persistence between runs
-VOLUME ["/app/artifacts"]
+# Set environment variables for AWS (these will be overridden by user-provided values)
+ENV AWS_DEFAULT_REGION=us-east-2
+ENV PYTHONPATH=/app
 
-# Make directories for data
-RUN mkdir -p /app/data
+# Expose port for Streamlit
+EXPOSE 8501
 
-# Add a healthcheck
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD python -c "import sys; sys.exit(0)"
+# Add a health check to verify the application is running
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8501/ || exit 1
 
-ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["--config", "config/default-config.yaml"]
+# Verify streamlit is available and check its location
+RUN which streamlit || echo "Streamlit not found in PATH"
+
+# Run streamlit with proper host binding
+CMD ["streamlit", "run", "src/app/app.py", "--server.port=8501", "--server.address=0.0.0.0", "--browser.serverAddress=localhost"]

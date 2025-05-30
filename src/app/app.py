@@ -9,9 +9,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 # Import modules using absolute imports
 from utils.config_loader import load_config
 from utils.prediction_tab import prediction_tab
-from utils.animated_map_tab import animated_map_tab
-from utils.train_model_tab import train_model_tab
-from utils.documentation_tab import documentation_tab
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -45,8 +42,64 @@ def main():
     st.title(app_config.get("title", "Australian Fire Analysis App"))
     st.markdown(app_config.get("description", "This application provides tools to analyze and predict fire brightness in Australia."))
     
-    # Add S3 configuration info in the sidebar
+    # Sidebar layout
     with st.sidebar:
+        # Add model selection to sidebar (at the top)
+        st.subheader("Model Selection")
+        if 'selected_model' not in st.session_state:
+            st.session_state.selected_model = list(MODEL_KEYS.keys())[0]
+        
+        st.session_state.selected_model = st.selectbox(
+            "Select prediction model:",
+            options=list(MODEL_KEYS.keys()),
+            index=list(MODEL_KEYS.keys()).index(st.session_state.selected_model)
+        )
+        
+        # Display model specifications
+        st.subheader("Model Specifications")
+        
+        # Model specs dictionary - can be expanded with more details
+        model_specs = {
+            "Decision Tree": {
+                "Type": "Classification/Regression Tree",
+                "Strengths": "Simple to understand, handles non-linear data",
+                "Limitations": "Can overfit, less accurate than ensemble methods"
+            },
+            "Random Forest": {
+                "Type": "Ensemble of Decision Trees",
+                "Strengths": "High accuracy, handles large datasets well",
+                "Limitations": "Less interpretable, computationally intensive"
+            },
+            "Linear Regression": {
+                "Type": "Linear Model",
+                "Strengths": "Simple, interpretable, fast training",
+                "Limitations": "Only captures linear relationships"
+            }
+        }
+        
+        # Display the specifications for the selected model
+        selected_specs = model_specs.get(st.session_state.selected_model, {})
+        for key, value in selected_specs.items():
+            st.write(f"**{key}:** {value}")
+        
+        # Create a similar helper function here
+        def safe_rerun():
+            """Safely rerun the app regardless of Streamlit version"""
+            try:
+                st.rerun()
+            except AttributeError:
+                try:
+                    st.experimental_rerun()
+                except AttributeError:
+                    # For very old versions, just show a message
+                    st.warning("Please refresh the page to see changes")
+        
+        # Add a button to refresh the app
+        if st.button("Refresh App"):
+            safe_rerun()
+        
+        # Move Application Info to the bottom of the sidebar
+        st.markdown("---")
         st.subheader("Application Info")
         st.info(f"""
         **S3 Bucket:** {S3_BUCKET}
@@ -57,24 +110,11 @@ def main():
         # Add a status indicator
         status = st.success("App is running normally")
         
-        # Add a button to refresh the app
-        if st.button("Refresh App"):
-            st.rerun()
-        
         # Add GitHub link
         st.markdown(f"[GitHub Repository]({app_config.get('github_repo', 'https://github.com/yourusername/cloudengr-aus-fire-Group5')})")
     
-    # Add tabs
-    tab1, tab2, tab3, tab4 = st.tabs(["Predict", "Animated Map", "Train Model", "Documentation"])
-    
-    with tab1:
-        prediction_tab(MODEL_KEYS, S3_BUCKET, S3_PREFIX)
-    with tab2:
-        animated_map_tab(S3_BUCKET, data_config)
-    with tab3:
-        train_model_tab(S3_BUCKET, S3_PREFIX, data_config)
-    with tab4:
-        documentation_tab()
+    # Display only the prediction tab without tabs UI
+    prediction_tab(MODEL_KEYS, S3_BUCKET, S3_PREFIX, st.session_state.selected_model)
     
     # Add footer
     st.markdown("---")

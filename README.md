@@ -26,11 +26,17 @@ To run the pipeline using the Docker container:
 docker run -v $(pwd)/artifacts:/app/artifacts cloud-pipeline
 ```
 
-You can override the default config file:
+### Running the Fire Prediction App
+
+To run the Streamlit app using Docker:
 
 ```bash
-docker run -v $(pwd)/artifacts:/app/artifacts cloud-pipeline --config config/custom-config.yaml
+docker run -p 8501:8501 fire-app
 ```
+
+> **Note**: If you see "Cannot connect to the server" errors, try accessing the app at http://localhost:8501
+
+> **Security Note**: Never expose your AWS credentials in documentation, repositories, or public communications. The above example is for illustration only. Use environment variables, AWS profiles, or secrets management systems in production.
 
 ### Environment Variables
 
@@ -50,6 +56,14 @@ docker run -v $(pwd)/artifacts:/app/artifacts \
   -e AWS_S3_BUCKET=your_bucket_name \
   -e AWS_REGION=us-west-2 \
   cloud-pipeline
+```
+
+### Troubleshooting Docker Issues
+
+If you encounter the error "streamlit: executable file not found in $PATH", make sure you've built the Docker image with the latest Dockerfile that correctly installs streamlit:
+
+```bash
+docker build -t fire-app -f dockerfiles/Dockerfile .
 ```
 
 ## Running Tests
