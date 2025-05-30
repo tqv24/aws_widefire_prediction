@@ -6,6 +6,7 @@ import numpy as np
 import folium
 from streamlit_folium import st_folium
 import pydeck as pdk
+import warnings
 
 # Use absolute imports instead of relative
 from utils.model_manager import download_model_from_s3, load_model, predict_fire
@@ -24,7 +25,7 @@ def safe_rerun():
             # For very old versions, just show a message
             st.warning("Please refresh the page to see changes")
 
-def prediction_tab(model_keys, s3_bucket, s3_prefix, selected_model=None):
+def prediction_tab(model_keys, s3_bucket, s3_prefix, selected_model=None, selected_experiment="1748638871"):
     """
     Display the prediction tab content with an interactive map and prediction form
     """
@@ -232,35 +233,41 @@ def prediction_tab(model_keys, s3_bucket, s3_prefix, selected_model=None):
     
     # Process prediction when button is clicked
     if predict_button:
-        with st.spinner("Calculating fire brightness prediction..."):
-            # Prepare input data
-            input_df = pd.DataFrame([{
-                "latitude": st.session_state.latitude,
-                "longitude": st.session_state.longitude,
-                "scan": scan,
-                "track": track,
-                "bright_t31": bright_t31,
-                "confidence": confidence,
-                "frp": frp
-            }])
-            
-            # Download and load model
-            model_path = download_model_from_s3(model_key, local_model_path, s3_bucket, s3_prefix)
-            if model_path:
-                model = load_model(model_path)
+        # Suppress all warnings during prediction to keep UI clean
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            with st.spinner("Calculating fire brightness prediction..."):
+                # Prepare input data
+                input_df = pd.DataFrame([{
+                    "latitude": st.session_state.latitude,
+                    "longitude": st.session_state.longitude,
+                    "scan": scan,
+                    "track": track,
+                    "bright_t31": bright_t31,
+                    "confidence": confidence,
+                    "frp": frp
+                }])
                 
-                if model:
-                    # Make prediction
-                    prediction = predict_fire(model, input_df)
+                # Download and load model - using known working experiment ID
+                model_path = download_model_from_s3(model_key, local_model_path, s3_bucket, s3_prefix, selected_experiment=selected_experiment)
+                if model_path:
+                    model = load_model(model_path)
                     
-                    if prediction is not None:
-                        # Store prediction in session state
-                        st.session_state.prediction_made = True
-                        st.session_state.prediction_value = prediction[0]
-                        safe_rerun()  # Use the helper function
+                    if model:
+                        # Make prediction
+                        prediction = predict_fire(model, input_df)
+                        
+                        if prediction is not None:
+                            # Store prediction in session state
+                            st.session_state.prediction_made = True
+                            st.session_state.prediction_value = prediction[0]
+                            
+                            # Display a success message before rerunning
+                            st.success(f"Prediction successful: {prediction[0]:.2f}")
+                            safe_rerun()  # Use the helper function
+                        else:
+                            st.error("Failed to make prediction. Please try again.")
                     else:
-                        st.error("Failed to make prediction. Please try again.")
+                        st.error("Failed to load model. Please try again.")
                 else:
-                    st.error("Failed to load model. Please try again.")
-            else:
-                st.error("Failed to download model from S3. Please check your connection.")
+                    st.error("Failed to download model from S3. Please check your connection.")

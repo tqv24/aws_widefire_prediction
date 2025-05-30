@@ -1,0 +1,389 @@
+2025-05-30 17:01:11 - firemodel - INFO - Starting fire prediction pipeline
+2025-05-30 17:01:11 - firemodel - INFO - Using configuration from config/default-config.yaml
+2025-05-30 17:01:11 - firemodel - INFO - Configuration file loaded successfully
+2025-05-30 17:01:11 - firemodel - INFO - Parsed configuration:
+2025-05-30 17:01:11 - firemodel - INFO -   - run_config
+2025-05-30 17:01:11 - firemodel - INFO -   - group5_compatibility
+2025-05-30 17:01:11 - firemodel - INFO -   - data_acquisition
+2025-05-30 17:01:11 - firemodel - INFO -   - create_dataset
+2025-05-30 17:01:11 - firemodel - INFO -   - generate_features
+2025-05-30 17:01:11 - firemodel - INFO -   - train_model
+2025-05-30 17:01:11 - firemodel - INFO -   - score_model
+2025-05-30 17:01:11 - firemodel - INFO -   - evaluate_performance
+2025-05-30 17:01:11 - firemodel - INFO -   - aws
+2025-05-30 17:01:11 - firemodel - INFO - Artifacts will be saved to artifacts\1748638871
+2025-05-30 17:01:11 - firemodel - INFO - Configuration saved to artifacts\1748638871\config.yaml
+2025-05-30 17:01:11 - firemodel - INFO - Data source: s3://mlds423-s3-project/data/fire_nrt.csv
+2025-05-30 17:01:11 - firemodel - INFO - Ensuring S3 bucket exists...
+2025-05-30 17:01:11 - firemodel - INFO - Checking for sample data...
+2025-05-30 17:01:12 - firemodel - INFO - S3 bucket for data source 's3://mlds423-s3-project/data/fire_nrt.csv' is ready
+2025-05-30 17:01:12 - firemodel - INFO - STEP 1: Acquiring data
+2025-05-30 17:01:12 - firemodel - INFO - Data acquired from data\fire_nrt.csv and saved to artifacts\1748638871\fire_data.csv
+2025-05-30 17:01:12 - firemodel - INFO - STEP 2: Creating structured dataset
+2025-05-30 17:01:13 - firemodel - INFO - Structured dataset created with 179967 rows and saved to artifacts\1748638871\fire_data_processed.csv
+2025-05-30 17:01:13 - firemodel - INFO - STEP 3: Generating features
+2025-05-30 17:01:13 - firemodel - INFO - Features generated with 8 columns and saved to artifacts\1748638871\fire_features.csv
+2025-05-30 17:01:13 - firemodel - INFO - STEP 4: Creating exploratory data analysis
+2025-05-30 17:01:24 - firemodel - INFO - Generated 14 EDA visualizations in artifacts\1748638871\figures
+2025-05-30 17:01:24 - firemodel - INFO - STEP 5: Training models
+2025-05-30 17:01:24 - firemodel - INFO - Using target column: brightness
+2025-05-30 17:01:24 - firemodel - INFO - Using features: ['latitude', 'longitude', 'scan', 'track', 'bright_t31', 'frp', 'confidence']
+2025-05-30 17:01:24 - firemodel - INFO - Split data into 134975 training samples and 44992 test samples
+2025-05-30 17:01:24 - firemodel - INFO - Saved training data (134975 rows) to artifacts\1748638871\train_data.csv
+2025-05-30 17:01:24 - firemodel - INFO - Saved test data (44992 rows) to artifacts\1748638871\test_data.csv
+2025-05-30 17:01:24 - firemodel - INFO - Training LinearRegression model 'linear_regression' with hyperparameters: {}
+2025-05-30 17:01:24 - firemodel - INFO - Model 'linear_regression' training complete
+2025-05-30 17:01:24 - firemodel - INFO - Training DecisionTreeRegressor model 'decision_tree' with hyperparameters: {'max_leaf_nodes': 10000, 'random_state': 1}
+2025-05-30 17:01:25 - firemodel - INFO - Model 'decision_tree' training complete
+2025-05-30 17:01:25 - firemodel - INFO - Training RandomForestRegressor model 'random_forest' with hyperparameters: {'n_estimators': 100, 'max_depth': 15, 'random_state': 42}
+2025-05-30 17:02:08 - firemodel - INFO - Model 'random_forest' training complete
+2025-05-30 17:02:08 - firemodel - INFO - Saving model 'linear_regression' to artifacts\1748638871\models\linear_regression.pkl
+2025-05-30 17:02:08 - firemodel - INFO - Model 'linear_regression' saved successfully
+2025-05-30 17:02:08 - firemodel - INFO - Saving model 'decision_tree' to artifacts\1748638871\models\decision_tree.pkl
+2025-05-30 17:02:08 - firemodel - INFO - Model 'decision_tree' saved successfully
+2025-05-30 17:02:08 - firemodel - INFO - Saving model 'random_forest' to artifacts\1748638871\models\random_forest.pkl
+2025-05-30 17:02:08 - firemodel - INFO - Model 'random_forest' saved successfully
+2025-05-30 17:02:08 - firemodel - INFO - All models saved successfully
+2025-05-30 17:02:08 - firemodel - INFO - STEP 6: Scoring models
+2025-05-30 17:02:09 - firemodel - INFO -   - Model: linear_regression
+2025-05-30 17:02:09 - firemodel - INFO -     MAE: 7.9986
+2025-05-30 17:02:09 - firemodel - INFO -     RMSE: 11.4811
+2025-05-30 17:02:09 - firemodel - INFO -     R2: 0.7489
+2025-05-30 17:02:09 - firemodel - INFO -   - Model: decision_tree
+2025-05-30 17:02:09 - firemodel - INFO -     MAE: 1.8277
+2025-05-30 17:02:09 - firemodel - INFO -     RMSE: 3.2535
+2025-05-30 17:02:09 - firemodel - INFO -     R2: 0.9798
+2025-05-30 17:02:09 - firemodel - INFO -   - Model: random_forest
+2025-05-30 17:02:09 - firemodel - INFO -     MAE: 1.4342
+2025-05-30 17:02:09 - firemodel - INFO -     RMSE: 2.4951
+2025-05-30 17:02:09 - firemodel - INFO -     R2: 0.9881
+2025-05-30 17:02:09 - firemodel - INFO - STEP 7: Evaluating model performance
+2025-05-30 17:02:09 - firemodel - INFO - Performance metrics and visualizations saved to artifacts\1748638871\metrics.yaml and artifacts\1748638871\figures
+2025-05-30 17:02:09 - firemodel - INFO - STEP 8: Uploading artifacts to S3
+2025-05-30 17:03:21 - firemodel - INFO - Uploaded 26 artifacts to S3
+2025-05-30 17:03:21 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748638871/config.yaml
+2025-05-30 17:03:21 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748638871/fire_data.csv
+2025-05-30 17:03:21 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748638871/fire_data_processed.csv
+2025-05-30 17:03:21 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748638871/fire_features.csv
+2025-05-30 17:03:21 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748638871/metrics.yaml
+2025-05-30 17:03:21 - firemodel - INFO -   - ...and 21 more
+2025-05-30 17:03:21 - firemodel - INFO - Pipeline completed successfully
+2025-05-30 19:07:15 - firemodel - INFO - Starting fire prediction pipeline
+2025-05-30 19:07:15 - firemodel - INFO - Using configuration from config/default-config.yaml
+2025-05-30 19:07:15 - firemodel - INFO - Configuration file loaded successfully
+2025-05-30 19:07:15 - firemodel - INFO - Parsed configuration:
+2025-05-30 19:07:15 - firemodel - INFO -   - run_config
+2025-05-30 19:07:15 - firemodel - INFO -   - group5_compatibility
+2025-05-30 19:07:15 - firemodel - INFO -   - data_acquisition
+2025-05-30 19:07:15 - firemodel - INFO -   - create_dataset
+2025-05-30 19:07:15 - firemodel - INFO -   - generate_features
+2025-05-30 19:07:15 - firemodel - INFO -   - train_model
+2025-05-30 19:07:15 - firemodel - INFO -   - score_model
+2025-05-30 19:07:15 - firemodel - INFO -   - evaluate_performance
+2025-05-30 19:07:15 - firemodel - INFO -   - aws
+2025-05-30 19:07:15 - firemodel - INFO - Artifacts will be saved to artifacts\1748646435
+2025-05-30 19:07:15 - firemodel - INFO - Configuration saved to artifacts\1748646435\config.yaml
+2025-05-30 19:07:15 - firemodel - INFO - Data source: s3://mlds423-s3-project/data/fire_nrt.csv
+2025-05-30 19:07:15 - firemodel - INFO - Ensuring S3 bucket exists...
+2025-05-30 19:07:16 - firemodel - INFO - Checking for sample data...
+2025-05-30 19:07:16 - firemodel - INFO - S3 bucket for data source 's3://mlds423-s3-project/data/fire_nrt.csv' is ready
+2025-05-30 19:07:16 - firemodel - INFO - STEP 1: Acquiring data
+2025-05-30 19:07:16 - firemodel - INFO - Data acquired from data\fire_nrt.csv and saved to artifacts\1748646435\fire_data.csv
+2025-05-30 19:07:16 - firemodel - INFO - STEP 2: Creating structured dataset
+2025-05-30 19:07:17 - firemodel - INFO - Structured dataset created with 179967 rows and saved to artifacts\1748646435\fire_data_processed.csv
+2025-05-30 19:07:17 - firemodel - INFO - STEP 3: Generating features
+2025-05-30 19:07:18 - firemodel - INFO - Features generated with 8 columns and saved to artifacts\1748646435\fire_features.csv
+2025-05-30 19:07:18 - firemodel - INFO - STEP 4: Creating exploratory data analysis
+2025-05-30 19:07:28 - firemodel - INFO - Generated 14 EDA visualizations in artifacts\1748646435\figures
+2025-05-30 19:07:28 - firemodel - INFO - STEP 5: Training models
+2025-05-30 19:07:28 - firemodel - INFO - Using target column: brightness
+2025-05-30 19:07:28 - firemodel - INFO - Using features: ['latitude', 'longitude', 'scan', 'track', 'bright_t31', 'frp', 'confidence']
+2025-05-30 19:07:28 - firemodel - INFO - Split data into 134975 training samples and 44992 test samples
+2025-05-30 19:07:28 - firemodel - INFO - Saved training data (134975 rows) to artifacts\1748646435\train_data.csv
+2025-05-30 19:07:28 - firemodel - INFO - Saved test data (44992 rows) to artifacts\1748646435\test_data.csv
+2025-05-30 19:07:28 - firemodel - INFO - Training LinearRegression model 'linear_regression' with hyperparameters: {}
+2025-05-30 19:07:28 - firemodel - INFO - Model 'linear_regression' training complete
+2025-05-30 19:07:28 - firemodel - INFO - Training DecisionTreeRegressor model 'decision_tree' with hyperparameters: {'max_leaf_nodes': 10000, 'random_state': 1}
+2025-05-30 19:07:29 - firemodel - INFO - Model 'decision_tree' training complete
+2025-05-30 19:07:29 - firemodel - INFO - Training RandomForestRegressor model 'random_forest' with hyperparameters: {'n_estimators': 100, 'max_depth': 15, 'random_state': 42}
+2025-05-30 19:08:11 - firemodel - INFO - Model 'random_forest' training complete
+2025-05-30 19:08:11 - firemodel - INFO - Saving model 'linear_regression' to artifacts\1748646435\models\linear_regression.pkl
+2025-05-30 19:08:11 - firemodel - INFO - Model 'linear_regression' saved successfully
+2025-05-30 19:08:11 - firemodel - INFO - Saving model 'decision_tree' to artifacts\1748646435\models\decision_tree.pkl
+2025-05-30 19:08:11 - firemodel - INFO - Model 'decision_tree' saved successfully
+2025-05-30 19:08:11 - firemodel - INFO - Saving model 'random_forest' to artifacts\1748646435\models\random_forest.pkl
+2025-05-30 19:08:11 - firemodel - INFO - Model 'random_forest' saved successfully
+2025-05-30 19:08:11 - firemodel - INFO - All models saved successfully
+2025-05-30 19:08:11 - firemodel - INFO - STEP 6: Scoring models
+2025-05-30 19:08:12 - firemodel - INFO -   - Model: linear_regression
+2025-05-30 19:08:12 - firemodel - INFO -     MAE: 7.9986
+2025-05-30 19:08:12 - firemodel - INFO -     RMSE: 11.4811
+2025-05-30 19:08:12 - firemodel - INFO -     R2: 0.7489
+2025-05-30 19:08:12 - firemodel - INFO -   - Model: decision_tree
+2025-05-30 19:08:12 - firemodel - INFO -     MAE: 1.8277
+2025-05-30 19:08:12 - firemodel - INFO -     RMSE: 3.2535
+2025-05-30 19:08:12 - firemodel - INFO -     R2: 0.9798
+2025-05-30 19:08:12 - firemodel - INFO -   - Model: random_forest
+2025-05-30 19:08:12 - firemodel - INFO -     MAE: 1.4342
+2025-05-30 19:08:12 - firemodel - INFO -     RMSE: 2.4951
+2025-05-30 19:08:12 - firemodel - INFO -     R2: 0.9881
+2025-05-30 19:08:12 - firemodel - INFO - STEP 7: Evaluating model performance
+2025-05-30 19:08:12 - firemodel - INFO - Performance metrics and visualizations saved to artifacts\1748646435\metrics.yaml and artifacts\1748646435\figures
+2025-05-30 19:08:12 - firemodel - INFO - STEP 8: Uploading artifacts to S3
+2025-05-30 19:08:45 - firemodel - INFO - Starting fire prediction pipeline
+2025-05-30 19:08:45 - firemodel - INFO - Using configuration from config/default-config.yaml
+2025-05-30 19:08:45 - firemodel - INFO - Configuration file loaded successfully
+2025-05-30 19:08:45 - firemodel - INFO - Parsed configuration:
+2025-05-30 19:08:45 - firemodel - INFO -   - run_config
+2025-05-30 19:08:45 - firemodel - INFO -   - group5_compatibility
+2025-05-30 19:08:45 - firemodel - INFO -   - data_acquisition
+2025-05-30 19:08:45 - firemodel - INFO -   - create_dataset
+2025-05-30 19:08:45 - firemodel - INFO -   - generate_features
+2025-05-30 19:08:45 - firemodel - INFO -   - train_model
+2025-05-30 19:08:45 - firemodel - INFO -   - score_model
+2025-05-30 19:08:45 - firemodel - INFO -   - evaluate_performance
+2025-05-30 19:08:45 - firemodel - INFO -   - aws
+2025-05-30 19:08:45 - firemodel - INFO - Artifacts will be saved to artifacts\1748646525
+2025-05-30 19:08:45 - firemodel - INFO - Configuration saved to artifacts\1748646525\config.yaml
+2025-05-30 19:08:45 - firemodel - INFO - Data source: s3://mlds423-s3-project/data/fire_nrt.csv
+2025-05-30 19:08:45 - firemodel - INFO - Ensuring S3 bucket exists...
+2025-05-30 19:08:45 - firemodel - INFO - Checking for sample data...
+2025-05-30 19:08:46 - firemodel - INFO - S3 bucket for data source 's3://mlds423-s3-project/data/fire_nrt.csv' is ready
+2025-05-30 19:08:46 - firemodel - INFO - STEP 1: Acquiring data
+2025-05-30 19:08:46 - firemodel - INFO - Data acquired from data\fire_nrt.csv and saved to artifacts\1748646525\fire_data.csv
+2025-05-30 19:08:46 - firemodel - INFO - STEP 2: Creating structured dataset
+2025-05-30 19:08:47 - firemodel - INFO - Structured dataset created with 179967 rows and saved to artifacts\1748646525\fire_data_processed.csv
+2025-05-30 19:08:47 - firemodel - INFO - STEP 3: Generating features
+2025-05-30 19:08:47 - firemodel - INFO - Features generated with 8 columns and saved to artifacts\1748646525\fire_features.csv
+2025-05-30 19:08:47 - firemodel - INFO - STEP 4: Creating exploratory data analysis
+2025-05-30 19:08:57 - firemodel - INFO - Generated 14 EDA visualizations in artifacts\1748646525\figures
+2025-05-30 19:08:57 - firemodel - INFO - STEP 5: Training models
+2025-05-30 19:08:57 - firemodel - INFO - Using target column: brightness
+2025-05-30 19:08:57 - firemodel - INFO - Using features: ['latitude', 'longitude', 'scan', 'track', 'bright_t31', 'frp', 'confidence']
+2025-05-30 19:08:57 - firemodel - INFO - Split data into 134975 training samples and 44992 test samples
+2025-05-30 19:08:57 - firemodel - INFO - Saved training data (134975 rows) to artifacts\1748646525\train_data.csv
+2025-05-30 19:08:57 - firemodel - INFO - Saved test data (44992 rows) to artifacts\1748646525\test_data.csv
+2025-05-30 19:08:57 - firemodel - INFO - Training LinearRegression model 'linear_regression' with hyperparameters: {}
+2025-05-30 19:08:57 - firemodel - INFO - Model 'linear_regression' training complete
+2025-05-30 19:08:57 - firemodel - INFO - Training DecisionTreeRegressor model 'decision_tree' with hyperparameters: {'max_leaf_nodes': 10000, 'random_state': 1}
+2025-05-30 19:08:58 - firemodel - INFO - Model 'decision_tree' training complete
+2025-05-30 19:08:58 - firemodel - INFO - Training RandomForestRegressor model 'random_forest' with hyperparameters: {'n_estimators': 10, 'max_depth': 15, 'random_state': 42}
+2025-05-30 19:09:02 - firemodel - INFO - Model 'random_forest' training complete
+2025-05-30 19:09:02 - firemodel - INFO - Saving model 'linear_regression' to artifacts\1748646525\models\linear_regression.pkl
+2025-05-30 19:09:02 - firemodel - INFO - Model 'linear_regression' saved successfully
+2025-05-30 19:09:02 - firemodel - INFO - Saving model 'decision_tree' to artifacts\1748646525\models\decision_tree.pkl
+2025-05-30 19:09:02 - firemodel - INFO - Model 'decision_tree' saved successfully
+2025-05-30 19:09:02 - firemodel - INFO - Saving model 'random_forest' to artifacts\1748646525\models\random_forest.pkl
+2025-05-30 19:09:02 - firemodel - INFO - Model 'random_forest' saved successfully
+2025-05-30 19:09:02 - firemodel - INFO - All models saved successfully
+2025-05-30 19:09:02 - firemodel - INFO - STEP 6: Scoring models
+2025-05-30 19:09:02 - firemodel - INFO -   - Model: linear_regression
+2025-05-30 19:09:02 - firemodel - INFO -     MAE: 7.9986
+2025-05-30 19:09:02 - firemodel - INFO -     RMSE: 11.4811
+2025-05-30 19:09:02 - firemodel - INFO -     R2: 0.7489
+2025-05-30 19:09:02 - firemodel - INFO -   - Model: decision_tree
+2025-05-30 19:09:02 - firemodel - INFO -     MAE: 1.8277
+2025-05-30 19:09:02 - firemodel - INFO -     RMSE: 3.2535
+2025-05-30 19:09:02 - firemodel - INFO -     R2: 0.9798
+2025-05-30 19:09:02 - firemodel - INFO -   - Model: random_forest
+2025-05-30 19:09:02 - firemodel - INFO -     MAE: 1.4895
+2025-05-30 19:09:02 - firemodel - INFO -     RMSE: 2.5400
+2025-05-30 19:09:02 - firemodel - INFO -     R2: 0.9877
+2025-05-30 19:09:02 - firemodel - INFO - STEP 7: Evaluating model performance
+2025-05-30 19:09:02 - firemodel - INFO - Performance metrics and visualizations saved to artifacts\1748646525\metrics.yaml and artifacts\1748646525\figures
+2025-05-30 19:09:02 - firemodel - INFO - STEP 8: Uploading artifacts to S3
+2025-05-30 19:09:26 - firemodel - INFO - Uploaded 26 artifacts to S3
+2025-05-30 19:09:26 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646525/config.yaml
+2025-05-30 19:09:26 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646525/fire_data.csv
+2025-05-30 19:09:26 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646525/fire_data_processed.csv
+2025-05-30 19:09:26 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646525/fire_features.csv
+2025-05-30 19:09:26 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646525/metrics.yaml
+2025-05-30 19:09:26 - firemodel - INFO -   - ...and 21 more
+2025-05-30 19:09:26 - firemodel - INFO - Pipeline completed successfully
+2025-05-30 19:10:00 - firemodel - INFO - Starting fire prediction pipeline
+2025-05-30 19:10:00 - firemodel - INFO - Using configuration from config/default-config.yaml
+2025-05-30 19:10:00 - firemodel - INFO - Configuration file loaded successfully
+2025-05-30 19:10:00 - firemodel - INFO - Parsed configuration:
+2025-05-30 19:10:00 - firemodel - INFO -   - run_config
+2025-05-30 19:10:00 - firemodel - INFO -   - group5_compatibility
+2025-05-30 19:10:00 - firemodel - INFO -   - data_acquisition
+2025-05-30 19:10:00 - firemodel - INFO -   - create_dataset
+2025-05-30 19:10:00 - firemodel - INFO -   - generate_features
+2025-05-30 19:10:00 - firemodel - INFO -   - train_model
+2025-05-30 19:10:00 - firemodel - INFO -   - score_model
+2025-05-30 19:10:00 - firemodel - INFO -   - evaluate_performance
+2025-05-30 19:10:00 - firemodel - INFO -   - aws
+2025-05-30 19:10:00 - firemodel - INFO - Artifacts will be saved to artifacts\1748646600
+2025-05-30 19:10:00 - firemodel - INFO - Configuration saved to artifacts\1748646600\config.yaml
+2025-05-30 19:10:00 - firemodel - INFO - Data source: s3://mlds423-s3-project/data/fire_nrt.csv
+2025-05-30 19:10:00 - firemodel - INFO - Ensuring S3 bucket exists...
+2025-05-30 19:10:00 - firemodel - INFO - Checking for sample data...
+2025-05-30 19:10:01 - firemodel - INFO - S3 bucket for data source 's3://mlds423-s3-project/data/fire_nrt.csv' is ready
+2025-05-30 19:10:01 - firemodel - INFO - STEP 1: Acquiring data
+2025-05-30 19:10:01 - firemodel - INFO - Data acquired from data\fire_nrt.csv and saved to artifacts\1748646600\fire_data.csv
+2025-05-30 19:10:01 - firemodel - INFO - STEP 2: Creating structured dataset
+2025-05-30 19:10:02 - firemodel - INFO - Structured dataset created with 179967 rows and saved to artifacts\1748646600\fire_data_processed.csv
+2025-05-30 19:10:02 - firemodel - INFO - STEP 3: Generating features
+2025-05-30 19:10:02 - firemodel - INFO - Features generated with 8 columns and saved to artifacts\1748646600\fire_features.csv
+2025-05-30 19:10:02 - firemodel - INFO - STEP 4: Creating exploratory data analysis
+2025-05-30 19:10:13 - firemodel - INFO - Generated 14 EDA visualizations in artifacts\1748646600\figures
+2025-05-30 19:10:13 - firemodel - INFO - STEP 5: Training models
+2025-05-30 19:10:13 - firemodel - INFO - Using target column: brightness
+2025-05-30 19:10:13 - firemodel - INFO - Using features: ['latitude', 'longitude', 'scan', 'track', 'bright_t31', 'frp', 'confidence']
+2025-05-30 19:10:13 - firemodel - INFO - Split data into 134975 training samples and 44992 test samples
+2025-05-30 19:10:13 - firemodel - INFO - Saved training data (134975 rows) to artifacts\1748646600\train_data.csv
+2025-05-30 19:10:13 - firemodel - INFO - Saved test data (44992 rows) to artifacts\1748646600\test_data.csv
+2025-05-30 19:10:13 - firemodel - INFO - Training LinearRegression model 'linear_regression' with hyperparameters: {}
+2025-05-30 19:10:13 - firemodel - INFO - Model 'linear_regression' training complete
+2025-05-30 19:10:13 - firemodel - INFO - Training DecisionTreeRegressor model 'decision_tree' with hyperparameters: {'max_leaf_nodes': 10000, 'random_state': 1}
+2025-05-30 19:10:14 - firemodel - INFO - Model 'decision_tree' training complete
+2025-05-30 19:10:14 - firemodel - INFO - Training RandomForestRegressor model 'random_forest' with hyperparameters: {'n_estimators': 10, 'max_depth': 15, 'random_state': 42}
+2025-05-30 19:10:18 - firemodel - INFO - Model 'random_forest' training complete
+2025-05-30 19:10:18 - firemodel - ERROR - Pipeline failed with error: [WinError 3] The system cannot find the path specified: 'artifacts\\1748646600\\models'
+2025-05-30 19:10:18 - firemodel - ERROR - Traceback (most recent call last):
+  File "D:\Academic\mlds\2025-spring\mlds423-cloud_eng\project\423-Project-Group5\src\pipeline\pipeline.py", line 255, in run_pipeline
+    models_path.mkdir(exist_ok=True)
+  File "C:\Users\voqua\AppData\Local\Programs\Python\Python311\Lib\pathlib.py", line 1116, in mkdir
+    os.mkdir(self, mode)
+FileNotFoundError: [WinError 3] The system cannot find the path specified: 'artifacts\\1748646600\\models'
+
+2025-05-30 19:11:22 - firemodel - INFO - Starting fire prediction pipeline
+2025-05-30 19:11:22 - firemodel - INFO - Using configuration from config/default-config.yaml
+2025-05-30 19:11:22 - firemodel - INFO - Configuration file loaded successfully
+2025-05-30 19:11:22 - firemodel - INFO - Parsed configuration:
+2025-05-30 19:11:22 - firemodel - INFO -   - run_config
+2025-05-30 19:11:22 - firemodel - INFO -   - group5_compatibility
+2025-05-30 19:11:22 - firemodel - INFO -   - data_acquisition
+2025-05-30 19:11:22 - firemodel - INFO -   - create_dataset
+2025-05-30 19:11:22 - firemodel - INFO -   - generate_features
+2025-05-30 19:11:22 - firemodel - INFO -   - train_model
+2025-05-30 19:11:22 - firemodel - INFO -   - score_model
+2025-05-30 19:11:22 - firemodel - INFO -   - evaluate_performance
+2025-05-30 19:11:22 - firemodel - INFO -   - aws
+2025-05-30 19:11:22 - firemodel - INFO - Artifacts will be saved to artifacts\1748646682
+2025-05-30 19:11:22 - firemodel - INFO - Configuration saved to artifacts\1748646682\config.yaml
+2025-05-30 19:11:22 - firemodel - INFO - Data source: s3://mlds423-s3-project/data/fire_nrt.csv
+2025-05-30 19:11:22 - firemodel - INFO - Ensuring S3 bucket exists...
+2025-05-30 19:11:22 - firemodel - INFO - Checking for sample data...
+2025-05-30 19:11:23 - firemodel - INFO - S3 bucket for data source 's3://mlds423-s3-project/data/fire_nrt.csv' is ready
+2025-05-30 19:11:23 - firemodel - INFO - STEP 1: Acquiring data
+2025-05-30 19:11:23 - firemodel - INFO - Data acquired from data\fire_nrt.csv and saved to artifacts\1748646682\fire_data.csv
+2025-05-30 19:11:23 - firemodel - INFO - STEP 2: Creating structured dataset
+2025-05-30 19:11:24 - firemodel - INFO - Structured dataset created with 179967 rows and saved to artifacts\1748646682\fire_data_processed.csv
+2025-05-30 19:11:24 - firemodel - INFO - STEP 3: Generating features
+2025-05-30 19:11:24 - firemodel - INFO - Features generated with 8 columns and saved to artifacts\1748646682\fire_features.csv
+2025-05-30 19:11:24 - firemodel - INFO - STEP 4: Creating exploratory data analysis
+2025-05-30 19:11:34 - firemodel - INFO - Generated 14 EDA visualizations in artifacts\1748646682\figures
+2025-05-30 19:11:34 - firemodel - INFO - STEP 5: Training models
+2025-05-30 19:11:34 - firemodel - INFO - Using target column: brightness
+2025-05-30 19:11:34 - firemodel - INFO - Using features: ['latitude', 'longitude', 'scan', 'track', 'bright_t31', 'frp', 'confidence']
+2025-05-30 19:11:34 - firemodel - INFO - Split data into 134975 training samples and 44992 test samples
+2025-05-30 19:11:34 - firemodel - INFO - Saved training data (134975 rows) to artifacts\1748646682\train_data.csv
+2025-05-30 19:11:34 - firemodel - INFO - Saved test data (44992 rows) to artifacts\1748646682\test_data.csv
+2025-05-30 19:11:34 - firemodel - INFO - Training LinearRegression model 'linear_regression' with hyperparameters: {}
+2025-05-30 19:11:34 - firemodel - INFO - Model 'linear_regression' training complete
+2025-05-30 19:11:34 - firemodel - INFO - Training DecisionTreeRegressor model 'decision_tree' with hyperparameters: {'max_leaf_nodes': 10000, 'random_state': 1}
+2025-05-30 19:11:35 - firemodel - INFO - Model 'decision_tree' training complete
+2025-05-30 19:11:35 - firemodel - INFO - Training RandomForestRegressor model 'random_forest' with hyperparameters: {'n_estimators': 10, 'max_depth': 15, 'random_state': 42}
+2025-05-30 19:11:39 - firemodel - INFO - Model 'random_forest' training complete
+2025-05-30 19:11:39 - firemodel - INFO - Saving model 'linear_regression' to artifacts\1748646682\models\linear_regression.pkl
+2025-05-30 19:11:39 - firemodel - INFO - Model 'linear_regression' saved successfully
+2025-05-30 19:11:39 - firemodel - INFO - Saving model 'decision_tree' to artifacts\1748646682\models\decision_tree.pkl
+2025-05-30 19:11:39 - firemodel - INFO - Model 'decision_tree' saved successfully
+2025-05-30 19:11:39 - firemodel - INFO - Saving model 'random_forest' to artifacts\1748646682\models\random_forest.pkl
+2025-05-30 19:11:39 - firemodel - INFO - Model 'random_forest' saved successfully
+2025-05-30 19:11:39 - firemodel - INFO - All models saved successfully
+2025-05-30 19:11:39 - firemodel - INFO - STEP 6: Scoring models
+2025-05-30 19:11:39 - firemodel - INFO -   - Model: linear_regression
+2025-05-30 19:11:39 - firemodel - INFO -     MAE: 7.9986
+2025-05-30 19:11:39 - firemodel - INFO -     RMSE: 11.4811
+2025-05-30 19:11:39 - firemodel - INFO -     R2: 0.7489
+2025-05-30 19:11:39 - firemodel - INFO -   - Model: decision_tree
+2025-05-30 19:11:39 - firemodel - INFO -     MAE: 1.8277
+2025-05-30 19:11:39 - firemodel - INFO -     RMSE: 3.2535
+2025-05-30 19:11:39 - firemodel - INFO -     R2: 0.9798
+2025-05-30 19:11:39 - firemodel - INFO -   - Model: random_forest
+2025-05-30 19:11:39 - firemodel - INFO -     MAE: 1.4895
+2025-05-30 19:11:39 - firemodel - INFO -     RMSE: 2.5400
+2025-05-30 19:11:39 - firemodel - INFO -     R2: 0.9877
+2025-05-30 19:11:39 - firemodel - INFO - STEP 7: Evaluating model performance
+2025-05-30 19:11:39 - firemodel - INFO - Performance metrics and visualizations saved to artifacts\1748646682\metrics.yaml and artifacts\1748646682\figures
+2025-05-30 19:11:39 - firemodel - INFO - STEP 8: Uploading artifacts to S3
+2025-05-30 19:12:09 - firemodel - INFO - Uploaded 26 artifacts to S3
+2025-05-30 19:12:09 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646682/config.yaml
+2025-05-30 19:12:09 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646682/fire_data.csv
+2025-05-30 19:12:09 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646682/fire_data_processed.csv
+2025-05-30 19:12:09 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646682/fire_features.csv
+2025-05-30 19:12:09 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646682/metrics.yaml
+2025-05-30 19:12:09 - firemodel - INFO -   - ...and 21 more
+2025-05-30 19:12:09 - firemodel - INFO - Pipeline completed successfully
+2025-05-30 19:12:15 - firemodel - INFO - Starting fire prediction pipeline
+2025-05-30 19:12:15 - firemodel - INFO - Using configuration from config/default-config.yaml
+2025-05-30 19:12:15 - firemodel - INFO - Configuration file loaded successfully
+2025-05-30 19:12:15 - firemodel - INFO - Parsed configuration:
+2025-05-30 19:12:15 - firemodel - INFO -   - run_config
+2025-05-30 19:12:15 - firemodel - INFO -   - group5_compatibility
+2025-05-30 19:12:15 - firemodel - INFO -   - data_acquisition
+2025-05-30 19:12:15 - firemodel - INFO -   - create_dataset
+2025-05-30 19:12:15 - firemodel - INFO -   - generate_features
+2025-05-30 19:12:15 - firemodel - INFO -   - train_model
+2025-05-30 19:12:15 - firemodel - INFO -   - score_model
+2025-05-30 19:12:15 - firemodel - INFO -   - evaluate_performance
+2025-05-30 19:12:15 - firemodel - INFO -   - aws
+2025-05-30 19:12:15 - firemodel - INFO - Artifacts will be saved to artifacts\1748646735
+2025-05-30 19:12:15 - firemodel - INFO - Configuration saved to artifacts\1748646735\config.yaml
+2025-05-30 19:12:15 - firemodel - INFO - Data source: s3://mlds423-s3-project/data/fire_nrt.csv
+2025-05-30 19:12:15 - firemodel - INFO - Ensuring S3 bucket exists...
+2025-05-30 19:12:16 - firemodel - INFO - Checking for sample data...
+2025-05-30 19:12:16 - firemodel - INFO - S3 bucket for data source 's3://mlds423-s3-project/data/fire_nrt.csv' is ready
+2025-05-30 19:12:16 - firemodel - INFO - STEP 1: Acquiring data
+2025-05-30 19:12:16 - firemodel - INFO - Data acquired from data\fire_nrt.csv and saved to artifacts\1748646735\fire_data.csv
+2025-05-30 19:12:16 - firemodel - INFO - STEP 2: Creating structured dataset
+2025-05-30 19:12:17 - firemodel - INFO - Structured dataset created with 179967 rows and saved to artifacts\1748646735\fire_data_processed.csv
+2025-05-30 19:12:17 - firemodel - INFO - STEP 3: Generating features
+2025-05-30 19:12:18 - firemodel - INFO - Features generated with 8 columns and saved to artifacts\1748646735\fire_features.csv
+2025-05-30 19:12:18 - firemodel - INFO - STEP 4: Creating exploratory data analysis
+2025-05-30 19:12:27 - firemodel - INFO - Generated 14 EDA visualizations in artifacts\1748646735\figures
+2025-05-30 19:12:27 - firemodel - INFO - STEP 5: Training models
+2025-05-30 19:12:27 - firemodel - INFO - Using target column: brightness
+2025-05-30 19:12:27 - firemodel - INFO - Using features: ['latitude', 'longitude', 'scan', 'track', 'bright_t31', 'frp', 'confidence']
+2025-05-30 19:12:27 - firemodel - INFO - Split data into 134975 training samples and 44992 test samples
+2025-05-30 19:12:28 - firemodel - INFO - Saved training data (134975 rows) to artifacts\1748646735\train_data.csv
+2025-05-30 19:12:28 - firemodel - INFO - Saved test data (44992 rows) to artifacts\1748646735\test_data.csv
+2025-05-30 19:12:28 - firemodel - INFO - Training LinearRegression model 'linear_regression' with hyperparameters: {}
+2025-05-30 19:12:28 - firemodel - INFO - Model 'linear_regression' training complete
+2025-05-30 19:12:28 - firemodel - INFO - Training DecisionTreeRegressor model 'decision_tree' with hyperparameters: {'max_leaf_nodes': 10000, 'random_state': 1}
+2025-05-30 19:12:29 - firemodel - INFO - Model 'decision_tree' training complete
+2025-05-30 19:12:29 - firemodel - INFO - Training RandomForestRegressor model 'random_forest' with hyperparameters: {'n_estimators': 10, 'max_depth': 15, 'random_state': 42}
+2025-05-30 19:12:33 - firemodel - INFO - Model 'random_forest' training complete
+2025-05-30 19:12:33 - firemodel - INFO - Saving model 'linear_regression' to artifacts\1748646735\models\linear_regression.pkl
+2025-05-30 19:12:33 - firemodel - INFO - Model 'linear_regression' saved successfully
+2025-05-30 19:12:33 - firemodel - INFO - Saving model 'decision_tree' to artifacts\1748646735\models\decision_tree.pkl
+2025-05-30 19:12:33 - firemodel - INFO - Model 'decision_tree' saved successfully
+2025-05-30 19:12:33 - firemodel - INFO - Saving model 'random_forest' to artifacts\1748646735\models\random_forest.pkl
+2025-05-30 19:12:33 - firemodel - INFO - Model 'random_forest' saved successfully
+2025-05-30 19:12:33 - firemodel - INFO - All models saved successfully
+2025-05-30 19:12:33 - firemodel - INFO - STEP 6: Scoring models
+2025-05-30 19:12:33 - firemodel - INFO -   - Model: linear_regression
+2025-05-30 19:12:33 - firemodel - INFO -     MAE: 7.9986
+2025-05-30 19:12:33 - firemodel - INFO -     RMSE: 11.4811
+2025-05-30 19:12:33 - firemodel - INFO -     R2: 0.7489
+2025-05-30 19:12:33 - firemodel - INFO -   - Model: decision_tree
+2025-05-30 19:12:33 - firemodel - INFO -     MAE: 1.8277
+2025-05-30 19:12:33 - firemodel - INFO -     RMSE: 3.2535
+2025-05-30 19:12:33 - firemodel - INFO -     R2: 0.9798
+2025-05-30 19:12:33 - firemodel - INFO -   - Model: random_forest
+2025-05-30 19:12:33 - firemodel - INFO -     MAE: 1.4895
+2025-05-30 19:12:33 - firemodel - INFO -     RMSE: 2.5400
+2025-05-30 19:12:33 - firemodel - INFO -     R2: 0.9877
+2025-05-30 19:12:33 - firemodel - INFO - STEP 7: Evaluating model performance
+2025-05-30 19:12:33 - firemodel - INFO - Performance metrics and visualizations saved to artifacts\1748646735\metrics.yaml and artifacts\1748646735\figures
+2025-05-30 19:12:33 - firemodel - INFO - STEP 8: Uploading artifacts to S3
+2025-05-30 19:12:56 - firemodel - INFO - Uploaded 26 artifacts to S3
+2025-05-30 19:12:56 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646735/config.yaml
+2025-05-30 19:12:56 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646735/fire_data.csv
+2025-05-30 19:12:56 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646735/fire_data_processed.csv
+2025-05-30 19:12:56 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646735/fire_features.csv
+2025-05-30 19:12:56 - firemodel - INFO -   - s3://mlds423-s3-project/experiments/1748646735/metrics.yaml
+2025-05-30 19:12:56 - firemodel - INFO -   - ...and 21 more
+2025-05-30 19:12:56 - firemodel - INFO - Pipeline completed successfully

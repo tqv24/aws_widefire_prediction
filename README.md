@@ -169,3 +169,12 @@ cloud-pipeline/
 ├── pipeline.py
 └── requirements.txt
 ```
+
+docker build -f dockerfiles/Dockerfile -t fire-app .
+
+
+docker run -p 8501:8501 \
+  -e AWS_ACCESS_KEY_ID=AKIAYLIWAPXRUH5QWTOD \
+  -e AWS_SECRET_ACCESS_KEY=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 \
+  -e AWS_DEFAULT_REGION=us-east-2 \
+  fire-app

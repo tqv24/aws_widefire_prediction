@@ -2,6 +2,7 @@ import streamlit as st
 import logging
 import os
 import sys
+import boto3
 
 # Add the current directory to the path so we can import modules
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -55,6 +56,54 @@ def main():
             index=list(MODEL_KEYS.keys()).index(st.session_state.selected_model)
         )
         
+        # Add experiment selection
+        st.subheader("Experiment Selection")
+        
+        # Get available experiments from S3
+        @st.cache_data(ttl=300)  # Cache for 5 minutes
+        def get_available_experiments(bucket, prefix):
+            try:
+                s3 = boto3.client('s3')
+                response = s3.list_objects_v2(
+                    Bucket=bucket,
+                    Prefix=prefix + '/',
+                    Delimiter='/'
+                )
+                
+                experiments = []
+                # Do not add 'latest' option since it's not available
+                
+                if 'CommonPrefixes' in response:
+                    for obj in response['CommonPrefixes']:
+                        # Extract experiment ID from path
+                        exp_id = obj['Prefix'].split('/')[-2]
+                        if exp_id != 'latest':  # Skip 'latest'
+                            experiments.append(exp_id)
+                
+                # Add known working experiments if list is empty
+                if not experiments:
+                    experiments = ["1748573816", "1748576650", "1748638871"]
+                    
+                # Sort experiments numerically (most recent first assuming timestamps)
+                experiments = sorted(experiments, reverse=True)
+                return experiments
+            except Exception as e:
+                logging.error(f"Error fetching experiments: {e}")
+                # Return default experiments if S3 fetch fails
+                return ["1748638871", "1748573816", "1748576650"]
+        
+        experiments = get_available_experiments(S3_BUCKET, S3_PREFIX)
+        
+        # Set default experiment in session state to a known working one
+        if 'selected_experiment' not in st.session_state:
+            st.session_state.selected_experiment = "1748638871"  # Use a known working experiment ID
+        
+        st.session_state.selected_experiment = st.selectbox(
+            "Select experiment run:",
+            options=experiments,
+            index=experiments.index(st.session_state.selected_experiment) if st.session_state.selected_experiment in experiments else 0
+        )
+        
         # Display model specifications
         st.subheader("Model Specifications")
         
@@ -105,6 +154,7 @@ def main():
         **S3 Bucket:** {S3_BUCKET}
         **Version:** {app_config.get("version", "1.0.0")}
         **Data:** Australian Fires 2019-2020
+        **Experiment:** {st.session_state.selected_experiment}
         """)
         
         # Add a status indicator
@@ -113,8 +163,8 @@ def main():
         # Add GitHub link
         st.markdown(f"[GitHub Repository]({app_config.get('github_repo', 'https://github.com/yourusername/cloudengr-aus-fire-Group5')})")
     
-    # Display only the prediction tab without tabs UI
-    prediction_tab(MODEL_KEYS, S3_BUCKET, S3_PREFIX, st.session_state.selected_model)
+    # Display the prediction tab and pass the selected experiment
+    prediction_tab(MODEL_KEYS, S3_BUCKET, S3_PREFIX, st.session_state.selected_model, st.session_state.selected_experiment)
     
     # Add footer
     st.markdown("---")

@@ -90,7 +90,7 @@ train_model:
     - name: "random_forest"
       type: "RandomForestRegressor"
       hyperparameters:
-        n_estimators: 100
+        n_estimators: 10
         max_depth: 15
         random_state: 42
       is_default: true  # Make Random Forest the default model
