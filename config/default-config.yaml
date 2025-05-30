@@ -1,0 +1,123 @@
+# Configuration for fire prediction pipeline with multiple models - aligned with Group5 notebook
+
+run_config:
+  name: fire-prediction-multi-model
+  author: Your Name
+  version: 1.0
+  description: Predicts fire brightness using multiple regression models - aligned with Group5 notebook
+  dependencies: requirements.txt
+  data_source: s3://mlds423-s3-project/data/fire_nrt.csv
+  output: artifacts  # Directory for output artifacts
+  # If you have any module paths, update them like:
+  # module_path: src/module.py → module_path: src/utils/module.py
+
+# Match Group5 notebook configuration
+group5_compatibility:
+  enabled: true  # Enable Group5 compatibility mode
+
+data_acquisition:
+  source: auto  # can be "kaggle", "s3", "local", or "auto" (try all methods)
+  kaggle_dataset: carlosparadis/fires-from-space-australia-and-new-zeland
+  dataset_file_pattern: fire_nrt*.csv  # Pattern to find the right CSV file
+  local_data_dir: data/raw
+  upload_to_s3: true
+  fallback_to_synthetic: true  # Create synthetic data if all else fails
+  # Update any module references here
+
+create_dataset:
+  critical_columns:
+    - latitude
+    - longitude
+    - brightness
+    - scan
+    - track
+    - frp
+    - confidence
+  region_filter:
+    enabled: true
+    min_latitude: -44
+    max_latitude: -10
+    min_longitude: 112
+    max_longitude: 154
+  outlier_removal:
+    enabled: true
+    column: brightness
+    std_threshold: 3
+  target_column: brightness
+
+generate_features:
+  # Enable Group5 mode to match their feature set exactly
+  group5_mode: true  
+  target_column: brightness
+  feature_columns:
+    - latitude
+    - longitude
+    - scan
+    - track
+    - bright_t31
+    - frp
+    - confidence
+  # Note: derived features are not used in Group5 mode
+  derived_features:
+    - frp_per_area
+    - temperature_diff
+
+train_model:
+  # Enable Group5 mode to match their training approach
+  group5_mode: true
+  # Use the exact features from the Group5 notebook
+  initial_features:
+    - latitude
+    - longitude
+    - scan
+    - track
+    - bright_t31
+    - frp
+    - confidence
+  models:
+    - name: linear_regression
+      type: LinearRegression
+      hyperparameters: {}
+      is_default: false
+
+    - name: decision_tree
+      type: DecisionTreeRegressor
+      hyperparameters:
+        max_leaf_nodes: 10000  # Match Group5 notebook value
+        random_state: 1  # Match Group5 notebook value
+      is_default: true
+
+    - name: "random_forest"
+      type: "RandomForestRegressor"
+      hyperparameters:
+        n_estimators: 100
+        max_depth: 15
+        random_state: 42
+      is_default: true  # Make Random Forest the default model
+
+  test_size: 0.25  # Match Group5 notebook
+  random_state: 1  # Match Group5 notebook
+  target_column: brightness
+
+score_model:
+  # Enable Group5 mode for consistent scoring
+  group5_mode: true
+  metrics:
+    - mae
+    - rmse
+    - r2
+
+evaluate_performance:
+  visualization:
+    - feature_importance
+    - predictions_vs_actual
+    - residuals_plot
+    - model_comparison
+  save_format: png
+  
+aws:
+  upload: true
+  bucket_name: mlds423-s3-project
+  prefix: experiments
+  region: us-east-2
+  create_bucket_if_missing: true

@@ -1,0 +1,39 @@
+# Application configuration
+
+# AWS settings
+aws:
+  bucket_name: mlds423-s3-project
+  prefix: experiments
+  region: us-east-2
+  create_bucket_if_missing: true
+
+# Data settings
+data:
+  primary_data_path: s3://mlds423-s3-project/data/fire_nrt.csv
+  fallback_paths:
+    - data/fire_nrt.csv
+    - processed/fire_features.csv
+    - data/fire_nrt_M6_96619_cleaned.csv
+  date_range:
+    start: 2019-10-01
+    end: 2020-01-11
+
+# Model settings
+models:
+  paths:
+    decision_tree: decision_tree.pkl
+    random_forest: random_forest.pkl
+    linear_regression: linear_regression.pkl
+  fallback_experiments:
+    - experiments/1748576650
+    - experiments/1748573816
+
+# Application settings
+app:
+  title: Wide Fire Prediction App
+  version: 1.0.0
+  description: Tools to analyze and predict fire brightness
+  # page_icon: 
+  layout: wide
+  initial_sidebar_state: expanded
+  github_repo: https://github.com/chi0405/cloudengr-aus-fire-Group5.git
