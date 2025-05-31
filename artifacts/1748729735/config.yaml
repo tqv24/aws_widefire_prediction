@@ -1,0 +1,102 @@
+aws:
+  bucket_name: mlds423-s3-project
+  create_bucket_if_missing: true
+  prefix: experiments
+  region: us-east-2
+  upload: true
+create_dataset:
+  critical_columns:
+  - latitude
+  - longitude
+  - brightness
+  - scan
+  - track
+  - frp
+  - confidence
+  outlier_removal:
+    column: brightness
+    enabled: true
+    std_threshold: 3
+  region_filter:
+    enabled: false
+    max_latitude: -10
+    max_longitude: 154
+    min_latitude: -44
+    min_longitude: 112
+  target_column: brightness
+data_acquisition:
+  dataset_file_pattern: fire_nrt*.csv
+  fallback_to_synthetic: true
+  kaggle_dataset: carlosparadis/fires-from-space-australia-and-new-zeland
+  local_data_dir: data/raw
+  source: auto
+  upload_to_s3: true
+evaluate_performance:
+  save_format: png
+  visualization:
+  - feature_importance
+  - predictions_vs_actual
+  - residuals_plot
+  - model_comparison
+generate_features:
+  derived_features:
+  - frp_per_area
+  - temperature_diff
+  feature_columns:
+  - latitude
+  - longitude
+  - scan
+  - track
+  - bright_t31
+  - frp
+  - confidence
+  group5_mode: true
+  target_column: brightness
+group5_compatibility:
+  enabled: true
+run_config:
+  author: Your Name
+  data_source: s3://mlds423-s3-project/data/fire_nrt.csv
+  dependencies: requirements.txt
+  description: Predicts fire brightness using multiple regression models - aligned
+    with Group5 notebook
+  name: fire-prediction-multi-model
+  output: artifacts
+  version: 1.0
+score_model:
+  group5_mode: true
+  metrics:
+  - mae
+  - rmse
+  - r2
+train_model:
+  group5_mode: true
+  initial_features:
+  - latitude
+  - longitude
+  - scan
+  - track
+  - bright_t31
+  - frp
+  - confidence
+  models:
+  - hyperparameters: {}
+    is_default: false
+    name: linear_regression
+    type: LinearRegression
+  - hyperparameters:
+      max_leaf_nodes: 200
+      random_state: 1
+    is_default: true
+    name: decision_tree
+    type: DecisionTreeRegressor
+  - hyperparameters:
+      max_depth: 10
+      n_estimators: 5
+      random_state: 42
+    is_default: true
+    name: random_forest
+    type: RandomForestRegressor
+  random_state: 1
+  target_column: brightness
+  test_size: 0.25

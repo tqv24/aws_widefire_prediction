@@ -83,15 +83,15 @@ train_model:
     - name: decision_tree
       type: DecisionTreeRegressor
       hyperparameters:
-        max_leaf_nodes: 10000  # Match Group5 notebook value
+        max_leaf_nodes: 200  # Match Group5 notebook value
         random_state: 1  # Match Group5 notebook value
       is_default: true
 
     - name: "random_forest"
       type: "RandomForestRegressor"
       hyperparameters:
-        n_estimators: 10
-        max_depth: 15
+        n_estimators: 5
+        max_depth: 10
         random_state: 42
       is_default: true  # Make Random Forest the default model
 

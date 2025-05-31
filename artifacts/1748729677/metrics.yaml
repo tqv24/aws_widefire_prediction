@@ -1,0 +1,49 @@
+best_model:
+  metrics:
+    mae: 3.8651326814708433
+    r2: 0.9442598374332961
+    rmse: !!python/object/apply:numpy._core.multiarray.scalar
+    - &id001 !!python/object/apply:numpy.dtype
+      args:
+      - f8
+      - false
+      - true
+      state: !!python/tuple
+      - 3
+      - <
+      - null
+      - null
+      - null
+      - -1
+      - -1
+      - 0
+    - !!binary |
+      skvofO2iFUA=
+  name: decision_tree
+figures:
+- figures\model_comparison.png
+models:
+  decision_tree:
+    is_default: false
+    mae: 3.8651326814708433
+    r2: 0.9442598374332961
+    rmse: !!python/object/apply:numpy._core.multiarray.scalar
+    - *id001
+    - !!binary |
+      skvofO2iFUA=
+  linear_regression:
+    is_default: false
+    mae: 7.998593293669099
+    r2: 0.7488801757234207
+    rmse: !!python/object/apply:numpy._core.multiarray.scalar
+    - *id001
+    - !!binary |
+      GPSu9032JkA=
+  random_forest:
+    is_default: true
+    mae: 5.519946542017589
+    r2: 0.8943335317144534
+    rmse: !!python/object/apply:numpy._core.multiarray.scalar
+    - *id001
+    - !!binary |
+      +HfZHzzKHUA=

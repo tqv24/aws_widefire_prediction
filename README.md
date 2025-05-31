@@ -3,10 +3,12 @@ This Streamlit application allows users to select and run different versions of 
 
 Features of the Project:
 
-- Dynamic model selection from S3 storage
-- Interactive prediction interface
-- Model metrics visualization
-- Containerized deployment options
+- Data Engineering – Ingestion, Processing 
+- Exploratory Data Analysis  
+- ML Model Development  
+- Model Experimentation and A/B Testing 
+- ML Pipeline and Automation  
+- ML Model Deployment
 
 
 ## Using the Application
@@ -51,24 +53,57 @@ Features of the Project:
 - **Map coloration issues**: If location markers don't change color, try resubmitting the prediction  
 
 
-## Project Structure
+## Project Structure and Implemenation
 
 ```
-ml-model-app/
-├── app.py                  # Main Streamlit application
-├── requirements.txt        # Project dependencies
-├── config/                 # Configuration files
-│   |── default-config.json # Configuration for AWS bucket and Deployment location
-│   |── service-definition.json # Service definition
-│   └── task-definition.json # ECS task definition
-├── src/                    # Source code modules
-│   ├── config_loader.py    # Configuration loading utilities
-│   ├── experiment_manager.py # Model experiment handling
-│   ├── prediction.py       # Prediction functionality
-│   ├── s3_storage.py       # S3 interaction utilities
-│   └── streamlit_components.py # UI components
-├── tests/test_app.py       # Unit tests
-└── dockerfiles/            # Docker configuration
+423-Project-Group5/
+├── config/                      # Configuration files
+│   ├── app_config.yaml          # App-specific settings
+│   ├── default-config.yaml      # Default configuration
+│   ├── logs-policy.json         # CloudWatch logs IAM policy
+│   ├── s3-policy.json           # S3 access IAM policy
+│   ├── service-definition.json  # ECS service definition
+│   └── task-definition.json     # ECS task definition
+├── data/                        # Data directory (gitignored)
+├── dockerfiles/                 # Docker configuration
+│   ├── .gitkeep
+│   └── Dockerfile               # Main application Dockerfile
+├── figures/                     # Visualization outputs
+├── notebooks/                   # Jupyter notebooks
+├── requirements.txt             # Project dependencies
+├── run.sh                       # Shell script for running app locally
+├── src/                         # Source code
+│   ├── app/                     # Streamlit application
+│   │   ├── __pycache__/
+│   │   ├── utils/               # App utilities
+│   │   │   ├── __pycache__/
+│   │   │   ├── __init__.py
+│   │   │   ├── config_loader.py # Configuration loading
+│   │   │   ├── data_loader.py   # Data loading utilities
+│   │   │   ├── documentation_tab.py # Documentation UI
+│   │   │   ├── model_manager.py # Model loading and management
+│   │   │   ├── prediction_tab.py # Prediction UI
+│   │   │   └── train_model_tab.py # Model training UI
+│   │   └── app.py              # Main Streamlit app
+│   └── pipeline/               # Data processing pipeline
+│       ├── __pycache__/
+│       ├── utils/              # Pipeline utilities
+│       │   ├── __pycache__/
+│       │   ├── acquire_data.py # Data acquisition
+│       │   ├── analysis.py     # Data analysis
+│       │   ├── aws_utils.py    # AWS interaction utilities 
+│       │   ├── create_dataset.py # Dataset creation
+│       │   ├── evaluate_performance.py # Model evaluation
+│       │   ├── generate_features.py # Feature engineering
+│       │   ├── score_model.py  # Model scoring
+│       │   └── train_model.py  # Model training
+│       └── pipeline.py         # Main pipeline script
+└── tests/                      # Test suite
+    ├── __pycache__/
+    ├── __init__.py
+    ├── .pylintrc              # Linting configuration
+    ├── test_app.py            # App tests
+    └── test_utils.py          # Utility tests
 ```
 
 ### Technical Requirements
@@ -77,7 +112,7 @@ ml-model-app/
 - Docker (optional)
 - AWS account with S3 access
 
-### I. Local Setup
+### **Local Setup**
 
 #### Environment Setup
 
@@ -97,48 +132,76 @@ ml-model-app/
    aws configure
    ```
 
+
 #### Running the Application
 
-Run the Streamlit application:
-```bash
-streamlit run src/app/app.py
-```
 
-Access the application at http://localhost:8501
-
-#### Running Tests
-
-```bash
-# Run all tests
-pytest tests/
-```
-
-
-
-
-
-
-### II. Cloud Deployment
-
-#### Building and Running with Docker
-
-1. Build the Docker image:
+1. Running the model training pipeline
    ```bash
-   docker build -t ml-model-app -f dockerfiles/Dockerfile .
+   ./run.sh pipeline
    ```
-   
-2. Run the container:
+2. Run the streamlit app
    ```bash
-   # Use environment variables from AWS CLI (recommended)
-   docker run -p 8501:8501 \
-    -e AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id) \
-    -e AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key) \
-    -e AWS_REGION=us-east-2 \
-    -e AWS_S3_BUCKET=mlds423-s3-project \
-    ml-model-app
+   ./run.sh app 
    ```
-   
-3. Access the application at http://localhost:8501
+   Access the application at http://localhost:8501
+
+3. Running Tests
+   ```bash
+   # Run all tests
+   pytest tests/
+   ```
+
+
+
+### **Building and Running with Docker**
+
+1. Build the Docker Image
+   ```bash
+   # Build the pipeline Docker image
+   docker build -t fire-prediction -f dockerfiles/Dockerfile .
+   ```
+2. Run the pipeline 
+   ```bash
+   # Using default settings
+   docker run --rm \
+   -v $(pwd)/artifacts:/app/artifacts \
+   -e AWS_ACCESS_KEY_ID=your_access_key \
+   -e AWS_SECRET_ACCESS_KEY=your_secret_key \
+   -e AWS_REGION=us-west-2 \
+   fire-prediction pipeline
+
+   # Run with a custom configuration file
+   docker run --rm \
+   -v $(pwd)/artifacts:/app/artifacts \
+   -e AWS_ACCESS_KEY_ID=your_access_key \
+   -e AWS_SECRET_ACCESS_KEY=your_secret_key \
+   -e AWS_REGION=us-west-2 \
+   fire-prediction pipeline --config=config/custom-config.yaml
+   ```
+3. Run the Streamlit application
+   ```bash
+   docker run --rm \
+   -p 8501:8501 \
+   -v $(pwd)/artifacts:/app/artifacts \
+   -e AWS_ACCESS_KEY_ID=your_access_key \
+   -e AWS_SECRET_ACCESS_KEY=your_secret_key \
+   -e AWS_REGION=us-west-2 \
+   fire-prediction app
+   ```
+   Access the application at http://localhost:8501
+
+4. Run tests
+   ```bash
+   # Run all tests
+   docker run --rm fire-prediction pytest
+
+   # Run specific test file
+   docker run --rm fire-prediction pytest tests/test_generate_feature.py -v
+   ```  
+
+
+### **Cloud Deployment with AWS**
 
 #### AWS ECS Deployment
 
