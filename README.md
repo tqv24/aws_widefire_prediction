@@ -68,6 +68,64 @@ docker build -t fire-app -f dockerfiles/Dockerfile .
 
 ## Running Tests
 
+### Test Files Overview
+
+The project includes two main test files:
+
+1. `test/test_app.py`: Tests for utility functions in the Streamlit application
+2. `test/test_pipeline.py`: Tests for utility functions in the data pipeline
+
+### Running Tests Locally
+
+To run the tests locally, you need to set the `PYTHONPATH` to include the `src` directory:
+
+```bash
+PYTHONPATH=src python3 -m unittest test/test_app.py
+PYTHONPATH=src python3 -m unittest test/test_pipeline.py
+```
+
+### Test File Structure
+
+#### test_app.py
+
+This file tests the utility functions in `src/app/utils/`:
+
+- `TestModelManager`: Tests model-related utilities
+  - `test_normalize_path`: Tests path normalization
+  - `test_load_model`: Tests model loading functionality
+  - `test_predict_fire`: Tests fire prediction with valid and invalid data
+
+- `TestDataLoader`: Tests data loading utilities
+  - `test_generate_synthetic_data`: Tests synthetic data generation
+  - `test_ensure_date_column`: Tests date column handling
+
+- `TestConfigLoader`: Tests configuration loading
+  - `test_load_config`: Tests loading from primary and fallback configs
+
+#### test_pipeline.py
+
+This file tests the utility functions in `src/pipeline/utils/`:
+
+- Tests for data pipeline utilities
+- Tests for feature generation
+- Tests for model training and evaluation
+
+### Test Results
+
+When running the tests, you should see output similar to:
+
+```
+Using fallback configuration from /tmp/test_fallback.yaml
+No configuration files found. Using default values.
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.007s
+
+OK
+```
+
+The dots (.) indicate passed tests, and "OK" means all tests completed successfully.
+
 ### Running Tests in Docker
 
 The Docker container is configured to run tests using pytest. To run all tests:
@@ -87,7 +145,6 @@ For tests with more options:
 ```bash
 docker run cloud-pipeline pytest -v -s --cov=src
 ```
-
 
 ## Local Development
 
@@ -176,5 +233,12 @@ docker build -f dockerfiles/Dockerfile -t fire-app .
 docker run -p 8501:8501 \
   -e AWS_ACCESS_KEY_ID=AKIAYLIWAPXRUH5QWTOD \
   -e AWS_SECRET_ACCESS_KEY=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 \
+  -e AWS_DEFAULT_REGION=us-east-2 \
+  fire-app
+
+
+docker run -p 8501:8501 \
+  -e AWS_ACCESS_KEY_ID=AKIAYLIWAPXR3NLVTAXZ \
+  -e AWS_SECRET_ACCESS_KEY=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 \
   -e AWS_DEFAULT_REGION=us-east-2 \
   fire-app
