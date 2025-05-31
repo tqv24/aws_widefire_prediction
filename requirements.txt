@@ -4,12 +4,12 @@ matplotlib>=3.5.0
 scikit-learn>=1.0.0
 boto3>=1.24.0
 botocore>=1.27.0
-streamlit==1.22.0
+streamlit==1.26.0
 altair==4.2.0
 vega_datasets
 plotly>=5.8.0
-folium>=0.12.0
-streamlit-folium>=0.7.0
+folium==0.14.0
+streamlit-folium==0.15.0
 pyyaml>=6.0
 requests>=2.27.0
 tqdm>=4.64.0

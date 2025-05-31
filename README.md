@@ -1,97 +1,85 @@
-# Cloud Classification Pipeline
+# Wide Fire prediction Model Deployment 
+This Streamlit application allows users to select and run different versions of machine learning models stored in AWS S3.
 
-This repository contains a pipeline for classifying clouds based on their features. The pipeline performs data acquisition, preprocessing, feature engineering, model training, and evaluation.
+Features of the Project:
 
-## Technical Requirements
+- Dynamic model selection from S3 storage
+- Interactive prediction interface
+- Model metrics visualization
+- Containerized deployment options
+
+
+## Using the Application
+![alt text](image.png)
+### Model Selection
+1. **Choose model type**: Select from three available model types:
+    - Linear Regression  
+    - Decision Tree  
+    - Random Forest  
+2. **View model metrics**: After selecting a model type, performance metrics will display automatically  
+3. **Model information**: The application shows training date, feature importance, and prediction accuracy  
+
+### Making Fire Predictions
+1. **Select location**: Click directly on the interactive map to choose any location worldwide  
+2. **Enter fire parameters**:
+    - Set satellite scan and track values  
+    - Adjust brightness temperature (`bright_t31`)  
+    - Set confidence level  
+    - Specify Fire Radiative Power (FRP)  
+3. **Generate prediction**: Click the “Predict” button  
+4. **View results**: See predicted fire size and probability scores displayed with visualizations  
+5. **Visualize prediction**: The selected location's marker color changes based on the prediction intensity  
+
+### Map Interaction Features
+- **Zoom and pan**: Navigate to specific regions of interest  
+- **Location markers**: Previously analyzed locations remain marked on the map with color-coded intensity  
+- **Geographic context**: Terrain and satellite view options available  
+- **Heat visualization**: Fire prediction intensity is represented by color gradient on the map  
+
+### Additional Features
+- **Error handling**: The application validates inputs and shows helpful error messages  
+- **Visualization tools**: Fire prediction metrics displayed with intuitive charts  
+- **Model comparison**: Compare predictions across different model types  
+- **Cached predictions**: Previously analyzed locations can be quickly recalled  
+
+### Troubleshooting
+- **Map loading issues**: Refresh the page if the map component fails to load  
+- **Connection errors**: Ensure AWS credentials are configured correctly for S3 access  
+- **Missing models**: Verify S3 bucket contains the model files in the expected format  
+- **Location selection errors**: Ensure you're clicking directly on the map to select coordinates  
+- **Prediction errors**: Check that input parameter values are within reasonable ranges  
+- **Map coloration issues**: If location markers don't change color, try resubmitting the prediction  
+
+
+## Project Structure
+
+```
+ml-model-app/
+├── app.py                  # Main Streamlit application
+├── requirements.txt        # Project dependencies
+├── config/                 # Configuration files
+│   |── default-config.json # Configuration for AWS bucket and Deployment location
+│   |── service-definition.json # Service definition
+│   └── task-definition.json # ECS task definition
+├── src/                    # Source code modules
+│   ├── config_loader.py    # Configuration loading utilities
+│   ├── experiment_manager.py # Model experiment handling
+│   ├── prediction.py       # Prediction functionality
+│   ├── s3_storage.py       # S3 interaction utilities
+│   └── streamlit_components.py # UI components
+├── tests/test_app.py       # Unit tests
+└── dockerfiles/            # Docker configuration
+```
+
+### Technical Requirements
 
 - Python 3.10+
-- Docker
-- Required Python packages are listed in `requirements.txt`
+- Docker (optional)
+- AWS account with S3 access
 
-## Docker Setup
+### I. Local Setup
 
-### Building the Docker Image
-
-To build the Docker image for the pipeline, run:
-
-```bash
-docker build -t cloud-pipeline -f dockerfiles/Dockerfile .
-```
-
-### Running the Pipeline
-
-To run the pipeline using the Docker container:
-
-```bash
-docker run -v $(pwd)/artifacts:/app/artifacts cloud-pipeline
-```
-
-### Running the Fire Prediction App
-
-To run the Streamlit app using Docker:
-
-```bash
-docker run -p 8501:8501 fire-app
-```
-
-> **Note**: If you see "Cannot connect to the server" errors, try accessing the app at http://localhost:8501
-
-> **Security Note**: Never expose your AWS credentials in documentation, repositories, or public communications. The above example is for illustration only. Use environment variables, AWS profiles, or secrets management systems in production.
-
-### Environment Variables
-
-The following environment variables can be set to configure AWS S3 uploads:
-
-- `AWS_ACCESS_KEY_ID`: Your AWS access key
-- `AWS_SECRET_ACCESS_KEY`: Your AWS secret key
-- `AWS_S3_BUCKET`: Override the S3 bucket name defined in the config
-- `AWS_REGION`: AWS region to use (defaults to us-west-2 if not specified)
-
-Example with AWS configuration:
-
-```bash
-docker run -v $(pwd)/artifacts:/app/artifacts \
-  -e AWS_ACCESS_KEY_ID=your_access_key \
-  -e AWS_SECRET_ACCESS_KEY=your_secret_key \
-  -e AWS_S3_BUCKET=your_bucket_name \
-  -e AWS_REGION=us-west-2 \
-  cloud-pipeline
-```
-
-### Troubleshooting Docker Issues
-
-If you encounter the error "streamlit: executable file not found in $PATH", make sure you've built the Docker image with the latest Dockerfile that correctly installs streamlit:
-
-```bash
-docker build -t fire-app -f dockerfiles/Dockerfile .
-```
-
-## Running Tests
-
-### Running Tests in Docker
-
-The Docker container is configured to run tests using pytest. To run all tests:
-
-```bash
-docker run cloud-pipeline pytest -v
-```
-
-To run specific test files:
-
-```bash
-docker run cloud-pipeline pytest tests/test_generate_feature.py -v
-```
-
-For tests with more options:
-
-```bash
-docker run cloud-pipeline pytest -v -s --cov=src
-```
-
-
-## Local Development
-
-### Setting Up the Environment
+#### Environment Setup
 
 1. Create a virtual environment:
    ```bash
@@ -104,77 +92,264 @@ docker run cloud-pipeline pytest -v -s --cov=src
    pip install -r requirements.txt
    ```
 
-### Running the Pipeline Locally
+3. Configure AWS credentials:
+   ```bash
+   aws configure
+   ```
 
+#### Running the Application
+
+Run the Streamlit application:
 ```bash
-python pipeline.py --config config/default-config.yaml
+streamlit run src/app/app.py
 ```
 
-### Running Tests Locally
+Access the application at http://localhost:8501
+
+#### Running Tests
 
 ```bash
+# Run all tests
 pytest tests/
 ```
 
-### Code Style
-
-The codebase follows PEP8 guidelines. To check for linting errors:
-```bash
-pylint src/
-```
-
-## Project Structure
-
-- `config/`: Configuration files
-- `src/`: Source code modules
-- `tests/`: Unit tests
-- `notebooks/`: Jupyter notebooks for exploration
-- `artifacts/`: Output directory for pipeline runs
-- `dockerfiles/`: Docker configuration files
-- `pipeline.py`: Main pipeline execution script
-- `requirements.txt`: Project dependencies
-
-### Project Tree
-```{text}
-cloud-pipeline/
-│
-├── config/
-│   ├── default-config.yaml
-│   └── custom-config.yaml (optional)
-│
-├── src/
-│   ├── __init__.py
-│   ├── acquire_data.py
-│   ├── create_dataset.py
-│   ├── analysis.py
-│   ├── evaluate_performance.py
-│   ├── generate_features.py
-│   ├── score_model.py
-│   ├── train_model.py
-│   └── aws_utils.py
-│
-├── tests/
-│   ├── __init__.py
-│   └── test_generate_feature.py
-│
-├── notebooks/
-│   └── cloud.ipynb
-│
-├── artifacts/
-│   └── ...
-│
-├── dockerfiles/
-│   └── Dockerfile
-│
-├── pipeline.py
-└── requirements.txt
-```
-
-docker build -f dockerfiles/Dockerfile -t fire-app .
 
 
-docker run -p 8501:8501 \
-  -e AWS_ACCESS_KEY_ID=AKIAYLIWAPXRUH5QWTOD \
-  -e AWS_SECRET_ACCESS_KEY=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 \
-  -e AWS_DEFAULT_REGION=us-east-2 \
-  fire-app
+
+
+
+### II. Cloud Deployment
+
+#### Building and Running with Docker
+
+1. Build the Docker image:
+   ```bash
+   docker build -t ml-model-app -f dockerfiles/Dockerfile .
+   ```
+   
+2. Run the container:
+   ```bash
+   # Use environment variables from AWS CLI (recommended)
+   docker run -p 8501:8501 \
+    -e AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id) \
+    -e AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key) \
+    -e AWS_REGION=us-east-2 \
+    -e AWS_S3_BUCKET=mlds423-s3-project \
+    ml-model-app
+   ```
+   
+3. Access the application at http://localhost:8501
+
+#### AWS ECS Deployment
+
+Follow these steps to deploy to AWS ECS:
+
+1. **Push to ECR**:
+   ```bash
+   # Login to ECR
+   aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 573961174499.dkr.ecr.us-east-2.amazonaws.com
+  
+   # Create repo in ECR
+   aws ecr create-repository --repository-name fire-app --region us-east-2
+  
+   # Tag and push image
+   docker tag fire-app:latest 573961174499.dkr.ecr.us-east-2.amazonaws.com/fire-app:latest
+   docker push 573961174499.dkr.ecr.us-east-2.amazonaws.com/fire-app:latest
+   ```
+
+
+2. **Create ECS Task Definition**:
+   
+   Create a task definition file in `config/task-definition.json`:
+
+   Register the task definition:
+
+   ```bash
+   aws ecs register-task-definition --cli-input-json file://config/task-definition.json
+   ```
+
+3. **Create Security Groups**:
+   ```bash
+   # Create security group for the load balancer
+   aws ec2 create-security-group \
+     --group-name fire-app-lb-sg \
+     --description "Security group for Fire app load balancer" \
+     --vpc-id vpc-007dd851f64198ce1
+     
+   # Allow inbound HTTP traffic on port 80 to the load balancer
+   aws ec2 authorize-security-group-ingress \
+     --group-id sg-095e4fab3a9ca1c7d \
+     --protocol tcp \
+     --port 80 \
+     --cidr 0.0.0.0/0
+     
+   # Create security group for the ECS tasks
+   aws ec2 create-security-group \
+     --group-name fire-app-ecs-sg \
+     --description "Security group for ML app ECS tasks" \
+     --vpc-id vpc-007dd851f64198ce1
+     
+   # Allow inbound traffic from the load balancer to the ECS tasks
+   aws ec2 authorize-security-group-ingress \
+     --group-id sg-0fd11e6ee05830d8f \
+     --protocol tcp \
+     --port 8501 \
+     --source-group sg-095e4fab3a9ca1c7d
+   ```
+
+4. **Create Load Balancer and Target Group**:
+   ```bash
+   # Create target group with IP target type for Fargate
+   aws elbv2 create-target-group \
+     --name fire-app-ip-tg \
+     --protocol HTTP \
+     --port 8501 \
+     --vpc-id vpc-007dd851f64198ce1 \
+     --target-type ip \
+     --health-check-path "//" \
+     --health-check-port 8501 \
+     --health-check-interval-seconds 30 \
+     --healthy-threshold-count 2 \
+     --unhealthy-threshold-count 2
+
+   # Create load balancer
+   aws elbv2 create-load-balancer \
+     --name fire-app-lb \
+     --subnets subnet-0aa977b01f02d3da3 subnet-0d29ed9f56d63dc79 \
+     --security-groups sg-095e4fab3a9ca1c7d
+     
+   # Create listener to forward traffic to the target group
+   aws elbv2 create-listener \
+     --load-balancer-arn arn:aws:elasticloadbalancing:us-east-2:573961174499:loadbalancer/app/fire-app-lb/e0511a9a3946f33d \
+     --protocol HTTP \
+     --port 80 \
+     --default-actions Type=forward,TargetGroupArn=arn:aws:elasticloadbalancing:us-east-2:573961174499:targetgroup/fire-app-ip-tg/e2fd63f2dda72862
+   ```
+
+5. **Create ECS Cluster and Service**:
+   ```bash
+   # Create ECS cluster
+   aws ecs create-cluster --cluster-name fire-app-cluster
+   
+   # Create ECS service with load balancer integration
+   aws ecs create-service \
+     --cluster fire-app-cluster \
+     --service-name fire-app-service \
+     --task-definition fire-app \
+     --desired-count 1 \
+     --launch-type FARGATE \
+     --network-configuration "awsvpcConfiguration={subnets=[subnet-0aa977b01f02d3da3,subnet-0d29ed9f56d63dc79],securityGroups=[sg-0fd11e6ee05830d8f],assignPublicIp=ENABLED}" \
+     --load-balancers "targetGroupArn=arn:aws:elasticloadbalancing:us-east-2:573961174499:targetgroup/fire-app-ip-tg/e2fd63f2dda72862,containerName=fire-app-container,containerPort=8501"
+   ```
+
+6. **Access the Deployed Application**:
+   
+   Get the load balancer DNS name:
+   ```bash
+   aws elbv2 describe-load-balancers \
+     --load-balancer-arn arn:aws:elasticloadbalancing:us-east-2:573961174499:loadbalancer/app/fire-app-lb/e0511a9a3946f33d \
+     --query 'LoadBalancers[0].DNSName' \
+     --output text
+   ```
+
+   Access the application at `http://<LOAD-BALANCER-DNS-NAME>`
+
+
+
+
+#### Troubleshooting Deployment Issues
+
+1. **Check Task Status**:
+   ```bash
+   aws ecs describe-tasks \
+     --cluster fire-app-cluster \
+     --tasks $(aws ecs list-tasks --cluster fire-app-cluster --service-name fire-app-service --query 'taskArns[0]' --output text)
+
+2. **Check CloudWatch Logs**:
+   ```bash
+   aws logs get-log-events \
+   --log-group-name ecs-fire-app \
+   --log-stream-name <LOG-STREAM-NAME>
+   ```
+
+3. **Check Target Health**:
+   ```bash
+   aws elbv2 describe-target-health \
+   --target-group-arn arn:aws:elasticloadbalancing:us-east-2:573961174499:targetgroup/fire-app-ip-tg/e2fd63f2dda72862
+   ```
+
+4. **Common Issues**:
+   - Security group misconfiguration
+   - Task IAM role missing S3 permissions
+   - Health check failures
+   - Network configuration issues
+
+
+   Example: Fix Create Log Group issue
+   ```bash
+   cat > logs-policy.json << 'EOF'
+   {
+   "Version": "2012-10-17",
+   "Statement": [
+      {
+         "Effect": "Allow",
+         "Action": [
+         "logs:CreateLogGroup",
+         "logs:CreateLogStream",
+         "logs:PutLogEvents"
+         ],
+         "Resource": "*"
+      }
+   ]
+   }
+
+   # Attach policy to task role
+   aws iam put-role-policy \
+   --role-name ecsTaskExecutionRole \
+   --policy-name logs-create-policy \
+   --policy-document file://logs-policy.json
+   ```
+
+   Example: Fix S3 Permissions
+   ```bash
+   # Create S3 access policy file
+   cat > s3-policy.json << 'EOF'
+   {
+   "Version": "2012-10-17",
+   "Statement": [
+      {
+         "Effect": "Allow",
+         "Action": [
+         "s3:ListBucket"
+         ],
+         "Resource": "arn:aws:s3:::mlds423-s3-project"
+      },
+      {
+         "Effect": "Allow",
+         "Action": [
+         "s3:GetObject",
+         "s3:PutObject",
+         "s3:DeleteObject"
+         ],
+         "Resource": "arn:aws:s3:::mlds423-s3-project/*"
+      }
+   ]
+   }
+   EOF
+
+   # Attach policy to task role
+   aws iam put-role-policy \
+   --role-name ecsTaskS3Role \
+   --policy-name S3AccessPolicy \
+   --policy-document file://s3-policy.json
+   ```
+
+   Update new deployment:
+   ```bash
+   # Force redeployment of service
+   aws ecs update-service \
+   --cluster fire-app-cluster \
+   --service fire-app-service \
+   --force-new-deployment
+   ```
+

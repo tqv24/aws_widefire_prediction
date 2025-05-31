@@ -1,0 +1,14 @@
+{
+  "cluster": "fire-app-cluster",
+  "serviceName": "fire-app-service",
+  "taskDefinition": "fire-app",
+  "launchType": "FARGATE",
+  "desiredCount": 1,
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "subnets": ["subnet-0aa977b01f02d3da3", "subnet-0d29ed9f56d63dc79"],
+      "securityGroups": ["sg-0fd11e6ee05830d8f"],
+      "assignPublicIp": "ENABLED"
+    }
+  }
+}

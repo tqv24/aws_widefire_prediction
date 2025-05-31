@@ -1,0 +1,56 @@
+{
+  "family": "fire-app",
+  "executionRoleArn": "arn:aws:iam::573961174499:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::573961174499:role/ecsTaskS3Role", 
+  "networkMode": "awsvpc",
+  "containerDefinitions": [
+    {
+      "name": "fire-app-container",
+      "image": "573961174499.dkr.ecr.us-east-2.amazonaws.com/fire-app:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8501,
+          "hostPort": 8501,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "AWS_REGION",
+          "value": "us-east-2"
+        },
+        {
+          "name": "AWS_S3_BUCKET",
+          "value": "mlds423-s3-project"
+        },
+        {
+          "name": "STREAMLIT_SERVER_ENABLE_CORS",
+          "value": "true"
+        },
+        {
+          "name": "STREAMLIT_SERVER_HEADLESS",
+          "value": "true"
+        },
+        {
+          "name": "STREAMLIT_SERVER_ADDRESS",
+          "value": "0.0.0.0"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "ecs-fire-app",
+          "awslogs-region": "us-east-2",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      }
+    }
+  ],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "512",
+  "memory": "1024"
+}
